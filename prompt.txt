@@ -1,0 +1,27 @@
+I have over 200 GB of mp3 archive of my radio emission. It is a 128kbit mp3 stream divided into 1 minute chunks (with the size no more than 1MB each). 
+
+Files are organized in the directory tree in the form /root_path/year/month/day/hour and inside each hour folder I have 60 1-minute files with the name year-month-day_hour-minute-00.mp3. Example file path is: /Users/gk/radio-929/archeo/2025/04/08/07/2025-04-08_07-09-00.mp3
+
+Seconds in the file name are typically zeros, if not we can detect some sort of anomaly in the process of archiving the stream, maybe stream was not available or other problem occurred. Such files are typically shorter than one minute. Please don’t handle anomalies yet, it will be subject of further improvements in the future.
+
+Hint about archived files: they were dumped directly from IceCast server. As a result apart of audio chunks they have also metadata injected between audio chunks (icy metadata). As for chunks there is high risk that first and last audio chunk are broken in each minute file, because files was divided based on change of current minute than not corrupting the chunks and delaying file splitting until last chunk will be completed. Metadata stored in the files can be helpfull in presentation what is currently playing even it is timeshift and was broadcasted for example 1 month ago.
+
+I want to build timeshift solution when listener can jump on the time line where archive is available and listen my radio from the past.
+
+Use case #1: latest weather forecast was broadcasted about 34 minutes and 56 seconds ago. User can go back into that time and start playing latest available forecast.
+
+Use case #2: listener can listen latest aired news broadcasted by radio
+
+Use case #3. Radio can provide some power playlist with the 100 most popular songs broadcasted by my radio. As a user I will see a grid with the albums and labels like artist - title. When I pick some song I’m interested (for example my favorite artist / song) I can go back to the latest emission of that song in my radio and play it.
+
+Technical requirements:
+OS: Mac with Apple Silicon
+Language: C++ (min. ver. 17)
+Framework: Qt (min. Ver 6.2)
+Presentation layer: QML (supporting Qt6 - with imports without version)
+Multimedia framework: BASS audio library from un4seen.com
+Archive is stored locally. In the future I will consider using s3 object storage.
+Of course I can scroll time in both directions: past and future when im already in the past.
+Exclude build folder from context.
+
+Please help me create simplest implementation of player that will be playing song from the past. As an input parameter for play command I need only date and time when I need to go back.
