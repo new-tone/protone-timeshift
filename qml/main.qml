@@ -1,21 +1,414 @@
-import QtQuick
-import QtQuick.Controls
+import QtQuick 6.8
+import QtQuick.Controls 6.8
+import QtQuick.Layouts 6.8
+import QtQuick.Controls.Material 6.8
 
 ApplicationWindow {
+    id: window
     visible: true
-    width: 400
-    height: 300
-    title: "Timeshift Player"
-
-    property var ts: Qt.formatDateTime(new Date("2025-03-14T14:15:00"), "yyyy-MM-ddTHH:mm:ss")
-
-    Button {
-        id: playButton
-        anchors.centerIn: parent
-        text: "Play"
-        onClicked: {
-            timeshiftPlayer.playAt(ts)
+    width: 800
+    height: 500
+    title: "Radio 929 Timeshift Player"
+    color: "#212121"
+    
+    // Default timestamp to start with
+    property var currentTimestamp: new Date("2025-04-11T15:30:00")
+    
+    // Metadata update
+    Connections {
+        target: timeshiftPlayer
+        function onCurrentMetadataChanged() {
+            metadataText.text = timeshiftPlayer.currentMetadata
+        }
+        
+        function onCurrentDateTimeChanged() {
+            var date = timeshiftPlayer.currentDateTime
+            timeLabel.text = Qt.formatDateTime(date, "yyyy-MM-dd HH:mm:ss")
+            
+            // Update the date picker to reflect current playback time
+            if (datePickerLoader.item) {
+                datePickerLoader.item.selectedDate = date
+            }
+            if (timePickerLoader.item) {
+                timePickerLoader.item.hour = date.getHours()
+                timePickerLoader.item.minute = date.getMinutes()
+            }
+        }
+        
+        function onIsPlayingChanged() {
+            playPauseButton.icon.source = timeshiftPlayer.isPlaying ?
+                "qrc:/icons/pause.png" : "qrc:/icons/play.png"
+        }
+        
+        function onPlaybackError(errorMessage) {
+            errorDialog.text = errorMessage
+            errorDialog.open()
         }
     }
-
+    
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 20
+        spacing: 15
+        
+        // Header with current metadata
+        Rectangle {
+            Layout.fillWidth: true
+            height: 60
+            color: "#333333"
+            radius: 5
+            
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: 10
+                
+                Image {
+                    source: "qrc:/icons/radio.png"
+                    Layout.preferredWidth: 40
+                    Layout.preferredHeight: 40
+                    fillMode: Image.PreserveAspectFit
+                }
+                
+                Label {
+                    id: metadataText
+                    Layout.fillWidth: true
+                    text: "Radio 929"
+                    font.pixelSize: 18
+                    font.bold: true
+                    color: "white"
+                    elide: Text.ElideRight
+                }
+            }
+        }
+        
+        // Time display
+        Rectangle {
+            Layout.fillWidth: true
+            height: 40
+            color: "#424242"
+            radius: 5
+            
+            Label {
+                id: timeLabel
+                anchors.centerIn: parent
+                text: Qt.formatDateTime(currentTimestamp, "yyyy-MM-dd HH:mm:ss")
+                font.pixelSize: 16
+                color: "white"
+            }
+        }
+        
+        // Playback controls
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignHCenter
+            spacing: 10
+            
+            Button {
+                icon.source: "qrc:/icons/backward.png"
+                icon.width: 30
+                icon.height: 30
+                implicitWidth: 60
+                implicitHeight: 60
+                ToolTip.text: "Skip backward"
+                ToolTip.visible: hovered
+                
+                onClicked: {
+                    timeshiftPlayer.skipBackward(5)
+                }
+            }
+            
+            Button {
+                id: playPauseButton
+                icon.source: "qrc:/icons/play.png"
+                icon.width: 40
+                icon.height: 40
+                implicitWidth: 80
+                implicitHeight: 80
+                
+                onClicked: {
+                    if (timeshiftPlayer.isPlaying) {
+                        timeshiftPlayer.pause()
+                    } else if (timeshiftPlayer.currentDateTime.getTime() > 0) {
+                        timeshiftPlayer.resume()
+                    } else {
+                        timeshiftPlayer.playAt(currentTimestamp)
+                    }
+                }
+            }
+            
+            Button {
+                icon.source: "qrc:/icons/forward.png"
+                icon.width: 30
+                icon.height: 30
+                implicitWidth: 60
+                implicitHeight: 60
+                ToolTip.text: "Skip forward"
+                ToolTip.visible: hovered
+                
+                onClicked: {
+                    timeshiftPlayer.skipForward(5)
+                }
+            }
+        }
+        
+        // Date & Time picker
+        Rectangle {
+            Layout.fillWidth: true
+            height: 120
+            color: "#424242"
+            radius: 5
+            
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 10
+                
+                Label {
+                    text: "Jump to specific time:"
+                    color: "white"
+                    font.pixelSize: 14
+                }
+                
+                RowLayout {
+                    spacing: 20
+                    
+                    // Date selector
+                    Loader {
+                        id: datePickerLoader
+                        objectName: "datePickerLoader"
+                        sourceComponent: datePickerComponent
+                        Layout.preferredWidth: 300
+                        
+                        onLoaded: {
+                            item.selectedDate = currentTimestamp
+                        }
+                    }
+                    
+                    // Time selector
+                    Loader {
+                        id: timePickerLoader
+                        sourceComponent: timePickerComponent
+                        
+                        onLoaded: {
+                            item.hour = currentTimestamp.getHours()
+                            item.minute = currentTimestamp.getMinutes()
+                        }
+                    }
+                    
+                    Button {
+                        text: "Go"
+                        onClicked: {
+                            var date = new Date(datePickerLoader.item.selectedDate)
+                            date.setHours(timePickerLoader.item.hour)
+                            date.setMinutes(timePickerLoader.item.minute)
+                            date.setSeconds(0)
+                            currentTimestamp = date
+                            timeshiftPlayer.playAt(date)
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Special jump buttons
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 10
+            
+            Button {
+                text: "Latest Weather Forecast"
+                Layout.fillWidth: true
+                onClicked: timeshiftPlayer.jumpToLatestWeatherForecast()
+            }
+            
+            Button {
+                text: "Latest News"
+                Layout.fillWidth: true
+                onClicked: timeshiftPlayer.jumpToLatestNews()
+            }
+        }
+    }
+    
+    // Error dialog
+    Dialog {
+        id: errorDialog
+        title: "Playback Error"
+        standardButtons: Dialog.Ok
+        property alias text: errorText.text
+        
+        Label {
+            id: errorText
+            width: parent.width
+        }
+        
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+    }
+    // Date Picker Dialog Component
+    Component {
+        id: dateDialogComponent
+        
+        Dialog {
+            id: dateDialog
+            title: "Select Date"
+            standardButtons: Dialog.Ok | Dialog.Cancel
+            width: 300
+            height: 200
+            
+            // Date that will be passed back
+            property date selectedDate: new Date()
+            property var callback: null
+            
+            // Initialize dialog with selected date
+            Component.onCompleted: {
+                yearSpin.value = selectedDate.getFullYear()
+                monthSpin.value = selectedDate.getMonth() + 1
+                daySpin.value = selectedDate.getDate()
+            }
+            
+            ColumnLayout {
+                anchors.fill: parent
+                spacing: 10
+                
+                Label {
+                    text: "Select a date:"
+                    font.bold: true
+                }
+                
+                RowLayout {
+                    spacing: 10
+                    
+                    // Year spinner
+                    ColumnLayout {
+                        Label {
+                            text: "Year"
+                            font.pixelSize: 12
+                        }
+                        SpinBox {
+                            id: yearSpin
+                            from: 2020
+                            to: 2030
+                            value: new Date().getFullYear()
+                        }
+                    }
+                    
+                    // Month spinner
+                    ColumnLayout {
+                        Label {
+                            text: "Month"
+                            font.pixelSize: 12
+                        }
+                        SpinBox {
+                            id: monthSpin
+                            from: 1
+                            to: 12
+                            value: new Date().getMonth() + 1
+                        }
+                    }
+                    
+                    // Day spinner
+                    ColumnLayout {
+                        Label {
+                            text: "Day"
+                            font.pixelSize: 12
+                        }
+                        SpinBox {
+                            id: daySpin
+                            from: 1
+                            to: 31
+                            value: new Date().getDate()
+                        }
+                    }
+                }
+            }
+            
+            onAccepted: {
+                var newDate = new Date(yearSpin.value, monthSpin.value - 1, daySpin.value)
+                if (callback) {
+                    callback(newDate)
+                }
+            }
+        }
+    }
+    
+    // Simple DatePicker component
+    Component {
+        id: datePickerComponent
+        
+        Rectangle {
+            id: datePicker
+            
+            property date selectedDate: new Date()
+            
+            height: 40
+            color: "#333333"
+            radius: 5
+            
+            function openDateDialog() {
+                var dialog = dateDialogComponent.createObject(window, {
+                    "selectedDate": selectedDate,
+                    "callback": function(newDate) {
+                        selectedDate = newDate
+                    }
+                })
+                dialog.open()
+            }
+            
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: 5
+                
+                Label {
+                    text: Qt.formatDate(datePicker.selectedDate, "yyyy-MM-dd")
+                    color: "white"
+                    font.pixelSize: 14
+                    Layout.fillWidth: true
+                }
+                
+                Button {
+                    text: "..."
+                    implicitWidth: height
+                    onClicked: datePicker.openDateDialog()
+                }
+            }
+        }
+    }
+    
+    // TimePicker Component
+    Component {
+        id: timePickerComponent
+        
+        RowLayout {
+            id: timePicker
+            
+            property int hour: 0
+            property int minute: 0
+            
+            spacing: 5
+            
+            SpinBox {
+                id: hourSpin
+                from: 0
+                to: 23
+                value: hour
+                Layout.preferredWidth: 70
+                onValueChanged: hour = value
+            }
+            
+            Label {
+                text: ":"
+                color: "white"
+                font.pixelSize: 20
+                font.bold: true
+            }
+            
+            SpinBox {
+                id: minuteSpin
+                from: 0
+                to: 59
+                value: minute
+                Layout.preferredWidth: 70
+                onValueChanged: minute = value
+            }
+        }
+    }
 }
