@@ -176,7 +176,7 @@ ApplicationWindow {
                         id: datePickerLoader
                         objectName: "datePickerLoader"
                         sourceComponent: datePickerComponent
-                        Layout.preferredWidth: 300
+                        //Layout.preferredWidth: 300
                         
                         onLoaded: {
                             item.selectedDate = currentTimestamp
@@ -251,8 +251,12 @@ ApplicationWindow {
             id: dateDialog
             title: "Select Date"
             standardButtons: Dialog.Ok | Dialog.Cancel
-            width: 300
-            height: 200
+            modal: true
+            visible: false
+            x: (parent.width - width) / 2
+            y: (parent.height - height) / 2
+            width: parent.width * 0.8
+            height: 250
             
             // Date that will be passed back
             property date selectedDate: new Date()
@@ -268,11 +272,6 @@ ApplicationWindow {
             ColumnLayout {
                 anchors.fill: parent
                 spacing: 10
-                
-                Label {
-                    text: "Select a date:"
-                    font.bold: true
-                }
                 
                 RowLayout {
                     spacing: 10
@@ -339,7 +338,9 @@ ApplicationWindow {
             
             property date selectedDate: new Date()
             
-            height: 40
+            height: 50
+            width: 200
+
             color: "#333333"
             radius: 5
             
@@ -360,7 +361,8 @@ ApplicationWindow {
                 Label {
                     text: Qt.formatDate(datePicker.selectedDate, "yyyy-MM-dd")
                     color: "white"
-                    font.pixelSize: 14
+                    font.pixelSize: 18
+                    font.bold: true
                     Layout.fillWidth: true
                 }
                 
@@ -379,6 +381,8 @@ ApplicationWindow {
         
         RowLayout {
             id: timePicker
+            width: 300
+            height: 50
             
             property int hour: 0
             property int minute: 0
@@ -392,6 +396,7 @@ ApplicationWindow {
                 value: hour
                 Layout.preferredWidth: 70
                 onValueChanged: hour = value
+                Layout.fillWidth: true
             }
             
             Label {
@@ -399,6 +404,7 @@ ApplicationWindow {
                 color: "white"
                 font.pixelSize: 20
                 font.bold: true
+                Layout.minimumWidth: 20
             }
             
             SpinBox {
@@ -408,6 +414,7 @@ ApplicationWindow {
                 value: minute
                 Layout.preferredWidth: 70
                 onValueChanged: minute = value
+                Layout.fillWidth: true
             }
         }
     }
