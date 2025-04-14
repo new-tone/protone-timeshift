@@ -69,7 +69,6 @@ ApplicationWindow {
                     Layout.preferredWidth: 40
                     Layout.preferredHeight: 40
                     fillMode: Image.PreserveAspectFit
-                    source.color: "red"
                 }
                 
                 Label {
