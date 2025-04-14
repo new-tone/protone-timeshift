@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>MaterialIconsSharp-Regular.codepoints</file>
+        <file>MaterialIconsSharp-Regular.otf</file>
+        <file>LICENSE</file>
+    </qresource>
+</RCC>

@@ -1,7 +1,8 @@
-import QtQuick 6.8
-import QtQuick.Controls 6.8
-import QtQuick.Layouts 6.8
-import QtQuick.Controls.Material 6.8
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Controls.Material
+import QtQuick.Effects
 
 ApplicationWindow {
     id: window
@@ -37,7 +38,7 @@ ApplicationWindow {
         
         function onIsPlayingChanged() {
             playPauseButton.icon.source = timeshiftPlayer.isPlaying ?
-                "qrc:/icons/pause.png" : "qrc:/icons/play.png"
+                        "image://icon/pause" : "image://icon/play_arrow"
         }
         
         function onPlaybackError(errorMessage) {
@@ -63,10 +64,12 @@ ApplicationWindow {
                 anchors.margins: 10
                 
                 Image {
-                    source: "qrc:/icons/radio.png"
+                    id: radioIcon
+                    source: "image://icon/radio"
                     Layout.preferredWidth: 40
                     Layout.preferredHeight: 40
                     fillMode: Image.PreserveAspectFit
+                    source.color: "red"
                 }
                 
                 Label {
@@ -103,12 +106,12 @@ ApplicationWindow {
             Layout.alignment: Qt.AlignHCenter
             spacing: 10
             
-            Button {
-                icon.source: "qrc:/icons/backward.png"
-                icon.width: 30
-                icon.height: 30
-                implicitWidth: 60
-                implicitHeight: 60
+            RoundButton {
+                icon.source: "image://icon/arrow_back"
+                icon.width: 60
+                icon.height: 60
+                implicitWidth: 90
+                implicitHeight: 90
                 ToolTip.text: "Skip backward"
                 ToolTip.visible: hovered
                 
@@ -117,13 +120,13 @@ ApplicationWindow {
                 }
             }
             
-            Button {
+            RoundButton {
                 id: playPauseButton
-                icon.source: "qrc:/icons/play.png"
-                icon.width: 40
-                icon.height: 40
-                implicitWidth: 80
-                implicitHeight: 80
+                icon.source: "image://icon/play_arrow"
+                icon.width: 80
+                icon.height: 80
+                implicitWidth: 120
+                implicitHeight: 120
                 
                 onClicked: {
                     if (timeshiftPlayer.isPlaying) {
@@ -136,12 +139,12 @@ ApplicationWindow {
                 }
             }
             
-            Button {
-                icon.source: "qrc:/icons/forward.png"
-                icon.width: 30
-                icon.height: 30
-                implicitWidth: 60
-                implicitHeight: 60
+            RoundButton {
+                icon.source: "image://icon/arrow_forward"
+                icon.width: 60
+                icon.height: 60
+                implicitWidth: 90
+                implicitHeight: 90
                 ToolTip.text: "Skip forward"
                 ToolTip.visible: hovered
                 
@@ -206,24 +209,6 @@ ApplicationWindow {
                         }
                     }
                 }
-            }
-        }
-        
-        // Special jump buttons
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 10
-            
-            Button {
-                text: "Latest Weather Forecast"
-                Layout.fillWidth: true
-                onClicked: timeshiftPlayer.jumpToLatestWeatherForecast()
-            }
-            
-            Button {
-                text: "Latest News"
-                Layout.fillWidth: true
-                onClicked: timeshiftPlayer.jumpToLatestNews()
             }
         }
     }
@@ -346,11 +331,11 @@ ApplicationWindow {
             
             function openDateDialog() {
                 var dialog = dateDialogComponent.createObject(window, {
-                    "selectedDate": selectedDate,
-                    "callback": function(newDate) {
-                        selectedDate = newDate
-                    }
-                })
+                                                                  "selectedDate": selectedDate,
+                                                                  "callback": function(newDate) {
+                                                                      selectedDate = newDate
+                                                                  }
+                                                              })
                 dialog.open()
             }
             

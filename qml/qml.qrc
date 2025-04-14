@@ -2,10 +2,5 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>qtquickcontrols2.conf</file>
-        <file>icons/play.png</file>
-        <file>icons/pause.png</file>
-        <file>icons/forward.png</file>
-        <file>icons/backward.png</file>
-        <file>icons/radio.png</file>
     </qresource>
 </RCC>

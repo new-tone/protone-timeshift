@@ -1,4 +1,5 @@
-#include "TimeshiftPlayer.h"
+#include "timeshiftplayer.h"
+
 #include <QDebug>
 #include <QDir>
 #include <QString>

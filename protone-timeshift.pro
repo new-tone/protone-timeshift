@@ -7,11 +7,14 @@ CONFIG += c++17
 include($$PWD/../bass/Bass.pri)
 
 RESOURCES += \
+    icons/icons.qrc \
     qml/qml.qrc
 
 SOURCES += \
+    src/iconprovider.cpp \
     src/main.cpp \
-    src/TimeshiftPlayer.cpp
+    src/timeshiftplayer.cpp
 
 HEADERS += \
-    src/TimeshiftPlayer.h
+    src/iconprovider.h \
+    src/timeshiftplayer.h

@@ -1,7 +1,9 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-#include "TimeshiftPlayer.h"
+
+#include "timeshiftplayer.h"
+#include "iconprovider.h"
 
 int main(int argc, char *argv[])
 {
@@ -11,6 +13,7 @@ int main(int argc, char *argv[])
     TimeshiftPlayer player;
     
     QQmlApplicationEngine engine;
+    engine.addImageProvider("icon", new IconProvider(":/MaterialIconsSharp-Regular.otf", ":/MaterialIconsSharp-Regular.codepoints"));
     engine.rootContext()->setContextProperty("timeshiftPlayer", &player);
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
